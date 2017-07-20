@@ -1,1 +1,1 @@
-GSoC-HPx
+GSoC HPX

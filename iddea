@@ -1,0 +1,14 @@
+creation of distributed objects
+      Needed :
+                Type
+                Localities
+                policy
+                Size in each locality (dimension, extent)
+
+
+      Conversion or Mappers
+                Array_ref  maps indices to local indices
+
+
+Interface
+        hpx::mdspan  ........

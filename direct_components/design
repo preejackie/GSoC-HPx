@@ -1,0 +1,83 @@
+The bulk_create API of cyclic_block_distribution_policy working :
+
+parameters :
+            1. Count          "no :of: components to be created"
+            2. block_size     "no: of: components should be created on the selected locality"   note : selected locality.
+            3. params         "parameters directed to constructor of component"
+
+            IMPORTANT : Notion of runs will not be considered
+
+Working    :
+
+
+
+
+
+
+                   Count = 15; block_size = 2; params ...
+                        localities = a,b,c,d
+                        -------------------------
+                        a      b       c     d      ------> values returned by performance counters
+                        10     5       1     0
+                        -------------------------
+
+                        Flow :
+                                create on d  --> 2 localities
+                                create on c  --> 2 localities
+                                create on b  --> 2 localities
+                                create on a  --> 2 localities
+                                total created  = 8
+                       -------------------------
+                        a      b       c     d
+                        12     7       3     2
+                       -------------------------
+                                to_create = 15-8 = 7
+                               create on d  ---> 2 localities
+                               create on c  ---> 2 localities
+                               create on b  ---> 2 localities
+                               create on a  ---> 1 locs
+                        -------------------------
+                        a      b       c     d
+                        13     9       5     4
+                       -------------------------
+                    I might argue that why we need to get the min-locality first, For them i think this example will do
+
+                    Count = 5, bloc_size = 3, params...
+                    localities a,b,c
+                    -------------------
+                     a       b       c
+                     7       1       0
+                     Create on c   --> 3 locs
+                     create on b   --> 2 locs
+                     -------------------
+                     a       b       c
+                     7       3       3
+                     Finished
+
+                     Create API:
+                      Just create one instance on the min-locality.
+
+                 If none of the above methods didn't statisfy..
+                 I happy will happy to implement like this
+
+                 Simply create block_size localities in each localities until we get the required number count.
+                 ---------------------------
+                 Count = 15; block_size = 2; params ...
+                        localities = a,b,c,d
+                        -------------------------
+                        a      b       c     d      ------> values returned by performance counters
+                        10     5       1     0
+                        -------------------------
+                                               create on a --> 2 localities
+                                               create on b  --> 2 localities
+                                               create on c  --> 2 localities
+                                               create on d  --> 2 localities
+                                               Cycle 2
+                                               create on a  --> 2locs
+                                               create on b  --> 2locs
+                                               create on c  --> 2locs
+                                               create on d  --> 1 locs
+                          -------------------------
+                        a      b       c     d
+                        14     9       5     3
+-------------------------
