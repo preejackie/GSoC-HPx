@@ -1,5 +1,5 @@
 #include <hpx/config.hpp>
-#include "internals/types.hpp"
+#include "types.hpp"
 
 #include <stdexcept>
 
@@ -21,19 +21,18 @@ namespace hpx{
     private:
             using my_type = hpx::domain_maps::distribution;
     public:
-            hpx::domain_maps::internals::types::distribution_type type;
-            std::size_t                                           block_size;
+            distribution_type type;
+            std::size_t       block_size;
 
-            using internals_t = hpx::domain_maps::internals::types::distribution_type;
+          using internals = hpx::domain_maps::distribution_type;
     public:
             distribution()
               :
-                  type(internals::types::distribution_type::NONE),
+                  type(internals::NONE),
                   block_size(0)
                   {}
 
-            distribution(internals::types::distribution_type type_t = internals::types::distribution_type::NONE
-                              , std::size_t size)
+            distribution(internals  type_t, std::size_t size)
               :
                  type(type_t),
                  block_size(size)
@@ -59,20 +58,20 @@ namespace hpx{
 
             // It returns the maximum size of block which is used in the distribution
             // of elements in the specific dimension
-            template<typename indextype, template size_type>
+            template<typename indextype, typename size_type>
               indextype max_block_size(indextype range, size_type num_localities) const
               {
                 switch (type) {
-                  case internals_t::NONE:
+                  case internals::NONE:
                             return range;
 
-                  case internals_t::BLOCKED:
+                  case internals::BLOCKED:
                             return ((range + num_localities) - 1 / num_localities);
 
-                  case internals_t::BLOCKCYCLIC:
+                  case internals::BLOCKCYCLIC:
                             return std::min<size_type>(range, block_size);
 
-                  case internals_t::CYCLIC:
+                  case internals::CYCLIC:
                             return 1;
 
                   /*
@@ -85,9 +84,35 @@ namespace hpx{
                 }
               }
 
+            template<typename indextype, typename size_type>
+            indextype local_index_to_block_index(
+                indextype loc_id_key,
+                indextype local_index,
+                size_type nlocs)
+              {
+                std::size_t off_;
+                switch (type) {
+                  case internals::NONE:
+                          return 0;
+
+                  case internals::BLOCKED:
+                          return loc_id_key;
+
+                  case internals::BLOCKCYCLIC:
+                        {
+                            off_  = local_index / block_size;
+
+                            return (off_ * nlocs) + loc_id_key;
+                        }
+                  case internals::CYCLIC:
+                        return (local_index * nlocs) + loc_id_key;
+                }
+              }
+
+
           bool operator == (const my_type & other) const
           {
-            if(type == other.type && block_size = other.block_size)
+            if(type == other.type && block_size == other.block_size)
             return true;
             else
             return false;
@@ -95,7 +120,7 @@ namespace hpx{
 
           bool operator != (const my_type & other) const
           {
-             if(type == other.type && block_size = other.block_size)
+             if(type == other.type && block_size == other.block_size)
                 return false;
             else
                 return true;
@@ -111,3 +136,4 @@ extern const distribution BLOCKCYCLIC(int block_size);
 extern const distribution CYCLIC;
 
 // extern const distribution R_BIJECTION;
+}}

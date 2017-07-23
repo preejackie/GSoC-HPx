@@ -18,9 +18,9 @@ namespace domain_maps{
   {
     public:
 
-    template<typename ...values>
-    dimensional(elementtype  val, (values)...)
-    : entity_{ {val, (elementtype)(values)... }}
+    template<typename ...Values>
+    dimensional(elementtype  val, Values ... values)
+    : entity_{ {val, (elementtype)values... }}
     {
       static_assert(sizeof...(values) == numdimensions - 1,
         "invalid number of default constructor arguments passed ");
@@ -81,5 +81,37 @@ namespace domain_maps{
     private:
     std::array<elementtype, numdimensions> entity_;
   };
+
+
+template <std::size_t numdimensions>
+class policy : dimensional<distribution, numdimensions>
+  {
+
+    policy()
+    {
+      policy_of_dimensions[0]  = BLOCKED;
+      for(std::size_t i = 1; i < numdimensions; i++)
+        {
+          policy_of_dimensions[i] = NONE;
+        }
+    }
+
+
+    template<typename ... Values>
+    policy(distribution dist, Values ... values)
+    : dimensional<distribution, numdimensions>::dimensional(dist, values ...)
+    {
+
+    }
+
+
+    policy(const std::array<distribution, numdimensions> & policies)
+    : dimensional<distribution, numdimensions>::dimensional(policies)
+    {}
+
+
+      std::array<distribution, numdimensions> policy_of_dimensions;
+  };
+
 }
 }
