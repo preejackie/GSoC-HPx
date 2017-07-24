@@ -19,7 +19,7 @@ namespace hpx{
   class distribution
   {
     private:
-            using my_type = hpx::domain_maps::distribution;
+            typedef  hpx::domain_maps::distribution my_type;
     public:
             distribution_type type;
             std::size_t       block_size;
@@ -46,14 +46,9 @@ namespace hpx{
 
             my_type& operator= (const my_type& other)
                 {
-                  if(this != &other)
-                    {
                       type          =    other.type;
                       block_size    =    other.block_size;
                       return *this;
-                    }
-                  else
-                    return *this;
                 }
 
             // It returns the maximum size of block which is used in the distribution
@@ -88,7 +83,7 @@ namespace hpx{
             indextype local_index_to_block_index(
                 indextype loc_id_key,
                 indextype local_index,
-                size_type nlocs)
+                size_type nlocs) const
               {
                 std::size_t off_;
                 switch (type) {
@@ -112,18 +107,12 @@ namespace hpx{
 
           bool operator == (const my_type & other) const
           {
-            if(type == other.type && block_size == other.block_size)
-            return true;
-            else
-            return false;
+            return (type == other.type && block_size == other.block_size);
           }
 
           bool operator != (const my_type & other) const
           {
-             if(type == other.type && block_size == other.block_size)
-                return false;
-            else
-                return true;
+             return (type != other.type || block_size != other.block_size);
           }
   };
 

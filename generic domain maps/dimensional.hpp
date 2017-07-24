@@ -31,9 +31,10 @@ namespace domain_maps{
     {}
 
     dimensional(const dimensional& other)
-    {
-      entity_ = other.entity_;
-    }
+     :
+      entity_(other.entity_)
+    {}
+
 
     dimensional& operator=(const dimensional& other)
     {
@@ -41,12 +42,12 @@ namespace domain_maps{
        return *this;
     }
 
-    auto entity() const
+    auto get_entity() const
     {
       return entity_;
     }
 
-    elementtype at_dimensiom(std::size_t dim) const
+    const elementtype at_dimensiom(std::size_t dim) const
     {
       if(dim >= numdimensions)
         return entity_[0];
@@ -54,7 +55,7 @@ namespace domain_maps{
         return entity_[dim];
     }
 
-    elementtype operator[](std::size_t dim) const
+    const elementtype operator[](std::size_t dim) const
     {
       if(dim >= numdimensions)
         throw std::runtime_error(" out of bounds ");
@@ -78,21 +79,20 @@ namespace domain_maps{
     }
 
 
-    private:
     std::array<elementtype, numdimensions> entity_;
   };
 
 
 template <std::size_t numdimensions>
-class policy : dimensional<distribution, numdimensions>
+class policy : public dimensional<distribution, numdimensions>
   {
-
+    public:
     policy()
     {
-      policy_of_dimensions[0]  = BLOCKED;
+      this->entity_[0]  = BLOCKED;
       for(std::size_t i = 1; i < numdimensions; i++)
         {
-          policy_of_dimensions[i] = NONE;
+          this->entity_[i] = NONE;
         }
     }
 
@@ -109,8 +109,12 @@ class policy : dimensional<distribution, numdimensions>
     : dimensional<distribution, numdimensions>::dimensional(policies)
     {}
 
+    /*policy(const policy& pol)
+    {
+      this->entity_ = pol.entity_;
+    }
+    */
 
-      std::array<distribution, numdimensions> policy_of_dimensions;
   };
 
 }

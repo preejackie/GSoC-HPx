@@ -43,7 +43,7 @@ class batch
 
   public:
           batch()
-                : batch_map()
+
                   {
                     std::vector<hpx::id_type> ids = hpx::find_all_localities();
                     int i = 0;
@@ -76,7 +76,7 @@ class batch
            }
   public:
           //hpx::future<bool> empty() const
-          bool empty() const
+          bool empty()
           {
             //return //hpx::make_future<bool>(batch_map.empty());
               return batch_map.empty();
@@ -128,14 +128,14 @@ class batch
 
             }
         }
-    const  hpx::id_type operator[](int of_id)
+    const hpx::id_type operator[](int of_id)
       {
-        batch_map[of_id];
+        return batch_map[of_id];
       }
 
     const  hpx::id_type operator[](int && of_id)
       {
-        batch_map[std::move(of_id)];
+        return batch_map[std::move(of_id)];
       }
 
 /*      bool is_member(hpx::id_type & loc_id)
@@ -158,7 +158,7 @@ class batch
               false;
         }
 */
-        std::size_t size() 
+        std::size_t size() const
         {
           return batch_map.size();
         }
@@ -209,7 +209,8 @@ class batch
 
 
 
-
 };
+
+
 }
 }

@@ -13,37 +13,27 @@ namespace domain_maps{
   // by following distribution policy per dimension
   // One here is 1 dimensional containers index space domain map
 
-  template<typename indextype,
-          std::size_t numdimensions>
+
  class domain_map
   {
-
     private:
 
-        typedef typename  std::make_unsigned<indextype>::type size_type;
-        typedef           policy<numdimensions>              policy_spec;
-        typedef std::array<indextype, numdimensions> coordinate;
-
-    private:
-        size_type       extent_1;
-        size_type       size;
-        policy_spec     policy_of;
-        batch           in_batch;
-        size_type       block_size;
-        size_type       no_of_blocks;
-        size_type       nlocs;
-        size_type       local_size;
-        size_type       nlocalblocks;
-        size_type       local_capacity;
+      std::size_t     extent_1;
+      policy<1>       policy_of;
+      batch           in_batch;
+      std::size_t     block_size;
+      std::size_t     no_of_blocks;
+      std::size_t     nlocs;
+      std::size_t     local_size;
+      std::size_t     local_capacity
 
     public:
     // Avoid default constructor
     domain_map() = delete;
 
-    domain_map(size_type linear_extent, policy_spec pol, batch  set_)
-     :
+    domain_map(std::size_t linear_extent, policy<1> pol, batch  set_)
+    :
       extent_1(linear_extent),
-      size     (linear_extent),
       policy_of(pol),
       in_batch(set_),
       block_size(assign_blocksize(linear_extent, pol, set_.size())),
@@ -53,59 +43,59 @@ namespace domain_maps{
 
       nlocs(in_batch.size()),
 
-      local_size(assign_local_size(0, in_batch.position(0))),
+      local_size(),
 
-      nlocalblocks(assign_nlocal_blocks(block_size, local_size)),
+      local_capacity(),
 
-      local_capacity(assign_local_capacity())
     {}
+
 
 
     domain_map(const domain_map& other)
     {
       extent_1    = other.extent_1;
-      size        = other.size;
       policy_of   = other.policy_of;
       in_batch    = other.in_batch;
       block_size  = other.block_size;
       no_of_blocks= other.no_of_blocks;
       nlocs       = other.nlocs;
       local_size  = other.local_size;
-      nlocalblocks = other.nlocalblocks;
       local_capacity = other.local_capacity;
+      //local_size  = other.local_size;
+      //local_no_of_blocks = other.local_no_of_blocks;
     }
 
     domain_map& operator=(const domain_map& other)
     {
       extent_1    = other.extent_1;
-      size        = other.size;
       policy_of   = other.policy_of;
       in_batch    = other.in_batch;
       block_size  = other.block_size;
       nlocs       = other.nlocs;
       local_size  = local_size;
-      nlocalblocks = other.nlocalblocks;
       local_capacity = local_capacity;
-      no_of_blocks= other.no_of_blocks;
-
+      //no_of_blocks= other.no_of_blocks;
+      //local_size  = other.local_size;
+      //local_no_of_blocks = other.local_no_of_blocks;
       return *this;
     }
 
-
-
+    public:
+      //using policy     = policy<1>;
+      using coordinate = std::array<std::size_t, 1>;
 
 
     public:
       typedef struct
         {
           hpx::id_type loc_id;
-          indextype    index;
+          std::size_t    index;
         } local_index;
 
       typedef struct
         {
           hpx::id_type  loc_id;
-          std::array<indextype,1> coords;
+          std::array<std::size_t, 1> coords;
         } local_coords;
 
       // get respective locality id from given
@@ -113,7 +103,7 @@ namespace domain_maps{
 
       // 1. get locality_id where the global_coordinate points to
 
-      hpx::id_type locality_at(const coordinate& g_co_ord)
+      hpx::id_type locality_at(const coordinate& g_co_ord) const
       {
           int loc_key     =  (g_co_ord[0] / block_size) % nlocs;
           return in_batch[loc_key];
@@ -121,7 +111,7 @@ namespace domain_maps{
 
 
      //  2. given global linear index --> associated locality_id
-      hpx::id_type locality_at(const indextype& global_index )
+      hpx::id_type locality_at(const std::size_t& global_index )
       {
         int loc_key   =  (global_index /block_size) % nlocs;
         return in_batch[loc_key];
@@ -143,7 +133,7 @@ namespace domain_maps{
 
       // converts given local_coordinate to linear local index
 
-      indextype local_offset(const coordinate& local_co) const
+      std::size_t local_offset(const coordinate& local_co) const
         {
           return local_co[0];
         }
@@ -154,7 +144,7 @@ namespace domain_maps{
       coordinate get_local_coordinate(const coordinate& global_co) const
       {
 
-        std::array<indextype, 1> local_coordinate;
+        std::array<std::size_t, 1> local_coordinate;
 
                 local_coordinate[0] = static_cast<indextype>
                   (
@@ -169,7 +159,7 @@ namespace domain_maps{
 
       // converts global coordinates to their associative loc id and local coordinates
 
-    local_coords get_local(const coordinate& global_co) const
+    local_coords get_local(const coordinate& global_co)
         {
           return local_coords
           {
@@ -203,16 +193,16 @@ namespace domain_maps{
 
           if(nlocs > 2)
             {
-                std::array<indextype, 1> global_coordinate;
+                std::array<std::size_t, 1> global_coordinate;
 
                 auto val_ = (policy_of[0].local_index_to_block_index(
-                    static_cast<indextype>(loc_id),
+                    static_cast<std::size_t>(loc_id),
                     local_coords[0],
                     nlocs
                   ) * block_size);
 
-                   global_coordinate[0] = static_cast<indextype>(
-                                            val_  + (local_coords[0] % block_size)
+                   global_coordinate[0] = static_cast<std::size_t>(
+                                            val_  + (local_coords[0] % block_size);
                                           );
 
                     return global_coordinate;
@@ -224,77 +214,35 @@ namespace domain_maps{
 
         }
 
-      bool is_local(hpx::id_type loc_id, indextype indx) const
+      bool is_local(hpx::id_type loc_id, std::size_t indx) const
         {
             return locality_at(indx) == loc_id;
         }
 
-      size_type get_no_of_localities() const
-        {
-            return nlocs;
-        }
-
-      size_type get_local_size() const
-        {
-            return local_size;
-        }
-
-      size_type  get_local_capacity() const
-        {
-           return local_capacity;
-        }
 
 
+    //private:
+//    std::size_t numdimensions = 1;
 
+    //  std::size_t   local_size;
+    //std::size_t   local_no_of_blocks;
+    //std::size_t   max_local_capacity;
 
-    private:
-
-
-    size_type assign_blocksize(size_type size, policy_spec dist, size_type nlocs) const
+    std::size_t assign_blocksize(std::size_t size, policy<1> dist, std::size_t nlocs) const
     {
       if(nlocs == 0 || size == 0)
         return 0;
-      distribution rule  = dist.entity_[0];
+      distribution rule  = dist.policy_of_dimensions[0];
       return rule.max_block_size(size, nlocs);
     }
 
-    size_type assign_nblocks(size_type block_size, size_type to_allocate) const
+    std::size_t assign_nblocks(std::size_t block_size, std::size_t to_allocate) const
       {
         if(to_allocate == 0 || block_size == 0)
             return 0;
         else
         return ((to_allocate + block_size) - 1)/block_size;
       }
-
-    size_type assign_nlocal_blocks(size_type block_size, size_type local_size) const
-    {
-      size_type nlocs = local_size;
-      if(block_size > 0)
-        {
-           return ( (nlocs + block_size) -1 / block_size);
-        }
-        else
-          return nlocs;
-    }
-
-    size_type assign_local_capacity() const
-      {
-        if(nlocs == 0)
-          return 0;
-        else
-          return ((no_of_blocks + nlocs - 1) / nlocs ) * block_size;
-      }
-
-    size_type assign_local_size(size_type loc_key, hpx::id_type id) const
-      {
-         if(nlocs == 0)
-            return 0;
-          else if (no_of_blocks == 1 &&  nlocs == 1)
-            return size;
-          else
-          return   ((no_of_blocks / nlocs) * block_size  + (loc_key < (no_of_blocks % nlocs) ? block_size : 0));
-      }
-
 
   };
 }
