@@ -2,7 +2,7 @@
 #include "types.hpp"
 
 #include <stdexcept>
-
+#include <iostream>
 /// Distribution specifies how to distribute the elements in the given dimension
 /// to the localities in batch.
 /// Predefined distribution types are
@@ -21,10 +21,11 @@ namespace hpx{
     private:
             typedef  hpx::domain_maps::distribution my_type;
     public:
-            distribution_type type;
+        //    distribution_type type;
             std::size_t       block_size;
 
-          using internals = hpx::domain_maps::distribution_type;
+          using internals = hpx::domain_maps::internals::distribution_type;
+          internals type;
     public:
             distribution()
               :
@@ -32,97 +33,96 @@ namespace hpx{
                   block_size(0)
                   {}
 
-            distribution(internals  type_t, std::size_t size)
+            distribution(internals  type_t, std::size_t size = 0)
               :
                  type(type_t),
                  block_size(size)
                  {}
 
-            distribution(const my_type& other)
-              :
-                type(other.type),
-                block_size(other.block_size)
-                {}
+                   distribution(const my_type& other)
+                     :
+                       type(other.type),
+                       block_size(other.block_size)
+                       {}
 
-            my_type& operator= (const my_type& other)
-                {
-                      type          =    other.type;
-                      block_size    =    other.block_size;
-                      return *this;
-                }
+                   my_type& operator= (const my_type& other)
+                       {
+                             type          =    other.type;
+                             block_size    =    other.block_size;
+                             return *this;
+                       }
 
-            // It returns the maximum size of block which is used in the distribution
-            // of elements in the specific dimension
-            template<typename indextype, typename size_type>
-              indextype max_block_size(indextype range, size_type num_localities) const
-              {
-                switch (type) {
-                  case internals::NONE:
-                            return range;
+                   // It returns the maximum size of block which is used in the distribution
+                   // of elements in the specific dimension
+                   template<typename indextype, typename size_type>
+                     indextype max_block_size(indextype range, size_type num_localities) const
+                     {
+                       switch (type) {
+                         case internals::NONE:
+                                   return range;
 
-                  case internals::BLOCKED:
-                            return ((range + num_localities) - 1 / num_localities);
+                         case internals::BLOCKED:
+                                   return (((range + num_localities) - 1) / num_localities);
 
-                  case internals::BLOCKCYCLIC:
-                            return std::min<size_type>(range, block_size);
+                         case internals::BLOCKCYCLIC:
 
-                  case internals::CYCLIC:
-                            return 1;
+                                   return std::min<size_type>(range, block_size);
 
-                  /*
-                    case internals_t::R_BIJECTION:
-                            return something
-                  */
+                         case internals::CYCLIC:
+                                   return 1;
 
-                  default :
-                            throw std::runtime_error("Distribution type is ill-formed");
-                }
-              }
+                         /*
+                           case internals_t::R_BIJECTION:
+                                   return something
+                         */
 
-            template<typename indextype, typename size_type>
-            indextype local_index_to_block_index(
-                indextype loc_id_key,
-                indextype local_index,
-                size_type nlocs) const
-              {
-                std::size_t off_;
-                switch (type) {
-                  case internals::NONE:
-                          return 0;
+                         default :
+                                   throw std::runtime_error("Distribution type is ill-formed");
+                       }
+                     }
+                     template<typename indextype, typename size_type>
+                                indextype local_index_to_block_index(
+                                    indextype loc_id_key,
+                                    indextype local_index,
+                                    size_type nlocs) const
+                                  {
+                                    std::size_t off_;
+                                    switch (type) {
+                                      case internals::NONE:
+                                              return 0;
 
-                  case internals::BLOCKED:
-                          return loc_id_key;
+                                      case internals::BLOCKED:
+                                              return loc_id_key;
 
-                  case internals::BLOCKCYCLIC:
-                        {
-                            off_  = local_index / block_size;
+                                      case internals::BLOCKCYCLIC:
+                                            {
+                                                off_  = local_index / block_size;
 
-                            return (off_ * nlocs) + loc_id_key;
-                        }
-                  case internals::CYCLIC:
-                        return (local_index * nlocs) + loc_id_key;
-                }
-              }
+                                                return (off_ * nlocs) + loc_id_key;
+                                            }
+                                      case internals::CYCLIC:
+                                            return (local_index * nlocs) + loc_id_key;
+                                    }
+                                  }
 
 
-          bool operator == (const my_type & other) const
-          {
-            return (type == other.type && block_size == other.block_size);
-          }
+                              bool operator == (const my_type & other) const
+                              {
+                                return (type == other.type && block_size == other.block_size);
+                              }
+                              bool operator != (const my_type & other) const
+                                    {
+                                       return (type != other.type || block_size != other.block_size);
+                                    }
+                            };
 
-          bool operator != (const my_type & other) const
-          {
-             return (type != other.type || block_size != other.block_size);
-          }
-  };
+                          extern const distribution NONE;
 
-extern const distribution NONE;
+                          extern const distribution BLOCKED;
 
-extern const distribution BLOCKED;
+                          extern const distribution BLOCKCYCLIC(int block_size);
 
-extern const distribution BLOCKCYCLIC(int block_size);
+                          extern const distribution CYCLIC;
 
-extern const distribution CYCLIC;
-
-// extern const distribution R_BIJECTION;
-}}
+                          // extern const distribution R_BIJECTION;
+                          }}

@@ -4,8 +4,8 @@
 // that the user can deal with
 namespace hpx{
 namespace domain_maps{
-
-  enum struct distribution_type : int
+namespace internals{
+  enum  distribution_type
     {
 
       UNDEFINED  = 0,
@@ -15,5 +15,6 @@ namespace domain_maps{
       CYCLIC,
       R_BIJECTION,
     };
+}
 }
 }

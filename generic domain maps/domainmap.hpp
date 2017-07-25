@@ -113,18 +113,18 @@ namespace domain_maps{
 
       // 1. get locality_id where the global_coordinate points to
 
-      hpx::id_type locality_at(const coordinate& g_co_ord)
+      hpx::id_type locality_at(const coordinate& g_co_ord) const
       {
           int loc_key     =  (g_co_ord[0] / block_size) % nlocs;
-          return in_batch[loc_key];
+          return in_batch.at(loc_key);
       }
 
 
      //  2. given global linear index --> associated locality_id
-      hpx::id_type locality_at(const indextype& global_index )
+      hpx::id_type locality_at(const indextype& global_index ) const
       {
         int loc_key   =  (global_index /block_size) % nlocs;
-        return in_batch[loc_key];
+        return in_batch.at(loc_key);
       }
 
         // Given no of elements in the given dimension
@@ -198,7 +198,7 @@ namespace domain_maps{
         Converts local_coordinates into it's associative global_coordinate
         note parameter : locality id_key it will change later
     */
-        coordinate  get_global(auto loc_id, const coordinate& local_coords) const
+        coordinate  get_global(int loc_id, const coordinate& local_coords) const
         {
 
           if(nlocs > 2)
@@ -243,6 +243,14 @@ namespace domain_maps{
         {
            return local_capacity;
         }
+      std::size_t get_block_size() const
+        {
+          return block_size;
+        }
+          std::size_t get_no () const
+            {
+              return no_of_blocks;
+            }
 
 
 
