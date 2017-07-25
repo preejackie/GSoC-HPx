@@ -12,7 +12,13 @@ namespace domain_maps{
   // It defines how the global indices are mapped to the units and to their local indexes
   // by following distribution policy per dimension
   // One here is 1 dimensional containers index space domain map
-
+  // Note
+  // Finding better structures for one to one mapping between localities and keys
+  // because I have used in keys (intergers) to divide the domains across localities
+  // because of arithmetic calculations. But the interface of domain map should only have
+  // localities in them, so keeping in std::map will lead to some probelmatic situations example
+  // for given locality_id " how can we find it's key (calculations)"
+  // One such situation here is assign_local_size function see line 62
   template<typename indextype,
           std::size_t numdimensions>
  class domain_map
