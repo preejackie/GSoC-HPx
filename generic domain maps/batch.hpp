@@ -33,6 +33,8 @@ namespace domain_maps{
 
    I need your most help for this part. Can we jointly make this ??
 
+
+
 */
 class batch
 {
@@ -81,6 +83,20 @@ class batch
                      //return //hpx::make_future<bool>(batch_map.empty());
                        return batch_map.empty();
                    }
+
+                  std::vector<hpx::id_type>   get()
+                  {
+                    std::size_t num_localities = batch_map.size();
+                    std::vector<hpx::id_type> locs;
+                    locs.reserve(num_localities);
+
+                     for(std::size_t i = 0; i < num_localities; i++)
+                     {
+                        const hpx::id_type ids  = batch_map[i];
+                        locs.emplace_back(ids);
+                     }
+                    return locs;
+                  }
                  /*
                    It divides the batch of localities into nparts batch of localities
                    and returns a future container
