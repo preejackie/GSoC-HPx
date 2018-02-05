@@ -143,11 +143,11 @@ namespace hpx
  using hpx::domain::domain;
   namespace traits
     {
-
+      
       template<>
       struct is_domain<domain> : std::true_type
        {};
-
+      // struct is_default_constructible<
       template<>
       struct is_integer_domain< domain<unsigned int> > : std::true_type
       {};
