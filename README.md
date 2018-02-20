@@ -2,9 +2,9 @@ Google Summer of Code 2017 - Distributed Component Placement
 
 Organization - STE||AR GROUP (HPX Runtime System)
 
-The project proposal can find [here](https://github.com/pree-jackie/GSoC-HPx/blob/master/Final_gsoc%20_proposal.pdf)
+The GSoC'17 project proposal is [here](https://github.com/pree-jackie/GSoC-HPx/blob/master/Final_gsoc%20_proposal.pdf)
 
-HPX - Modern C++ General Purpose Runtime System for applications of any scale with standard Concurrency and Parallelism concepts. Applications written in HPX out-perform OpenMP/MPI.
+HPX (High Performance Parallelx) - Modern C++ General Purpose Runtime System for applications of any scale with standard Concurrency and Parallelism concepts. Applications written in HPX out-perform OpenMP/MPI.
 
 HPX is an innovative mixture of 
   - Global System-wide Address Space (Active Global Address Space).
@@ -103,45 +103,94 @@ Implement a feature similar to [chapel programming language Domain maps](https:/
 
 **First,things first** 
 
-**Domains** in **Chapel** programming language are inspired by **ZPL Regions**. 
+In one line - "Basically we are going to construct a **distributed array** in HPX" :)-
+
+**Domains** in **Chapel** programming language are inspired by **ZPL(Language) Regions**. 
 
 From Chapel:
-> Domain Maps are "recipes" that instruct the compiler how to map the global view of a computation to the target locales' memory and processors
+> **Domain Maps are "recipes" that instruct the compiler how to map the global view of a computation to the target locales' memory and processors**
 
 Domain Maps answers
 1) How are arrays laid out in memory ?
 2) How are arrays are stored by the locales ?
 
-Domains represent the index-set of an array. It is a way of expressing **Data Parallelism** in the code
+Domains represent the index-set of an array. It is a way of expressing **Data Parallelism** directly in the code.
 
-Types
+Domain Types
 1) Dense 
 2) Sparse
 3) Strided
 4) Unstructed (for graphs)
 5) Associative (for maps)
 
-Domain Maps tells **how to arrange these indexes in the memory (row-major || column-major)** if the array is stored locally and **how to distribute the array** if the array is stored in distributed manner.
+Domain Maps tells **how to arrange these indexes in the memory (row-major || column-major)** if the array is stored locally (single-node or multi-processor) and **how to distribute the domain indices to different localities** if the array is stored in distributed manner (multi compute nodes).
 
-Each Domain is mapped to the local processor in row-major order,by default.
+**Distribution Policies**
 
-However,Domains are mapped to different compute nodes based on the domain_map specified. **Domain_Map_Factory** takes Domain(Index set) and distribution policy(Cyclic,Block,Block-Cyclic) as parameters as produces an instance of **Mapped_domain**.
+Local(single node)
+ > row_major_layout, column_major_layout, compressed_row_format (for sparse domains, experimental).
+ 
+Distributed (cluster of compute nodes)
+ > block_dist_policy, cyclic_dist_policy, block_cyclic_dist_policy. 
 
-**Mapped_domain**
+
+**Domain_Map_Factory Class**
 
 **Properties**
 
-- the instance of domain.
-- layout order and distribution policies
-- locality id's where the domain is mapped
+- Takes domain and distribution policy (local, by default) as it's arguments in constructor.
+
+- If the distribution policy is local, the indices of the domain are mapped to the current(local) node in either row_major or column-major (based on specification).
+
+- In this case, Domain_Map_Factory class creates the **mapped_domain_instance**.
+
+- If the distribution policy is distributed, the indices of the domain are mapped to cluster of nodes in blockwise or cyclic or blockcyclic manner.
+
+  Incase of distributed nodes, Domain_Map_Factory class creates a special map like data structure whose **keys** are       **hpx::locality_ids** and values are **range of domain indices** mapped to that particular locality.
+
+
+**Operations**
+
+ - Create_Mapped_Domain() 
+ > creates an instance of Mapped_Domain.
+ - query_localities() 
+ > returns a list of localities where the indices are mapped.
+ - query_domain()
+ > returns a reference to the domain.
+ 
+**Mapped_Domain** 
+This type acts as a factory class to create arrays. 
+
+**Properties**
+
+- Maintains a list of locality_ids and range of domain indices mapped to each locality.
+
+- Layout pattern such as row_major, column_major, compressed_row_format.
+
+- This class creates an array, array is stored in the mapped_localities in the specified layout. In distributed case, the single global array instance contains multiple local array instances.
 
 **Behaviours**
+
+- operator[] () (Random access operator)
+
+> Based on the index requested, this function finds the locality_id and the index in the local array in which the element is located and returns a reference to it if **array[] is LHS of =** and copy if **array[] is RHS of =**.
+
+- get_iterator() 
+
+> returns an instance of iterator over the array. Iterator traverses over the distributed global array by finding the indexed element locality and it's index in local array.
+
 - Create_Array_Factory 
-> This function creates an array,with mapped_domain in the selected localities.
+
+> This function creates an array, with mapped_domain in the selected localities.
+
 - Get_Domain
+
 > Returns the reference to the domain.
+
 - Get_Localities
-> Returns the vector of hpx::locality_id's which is associated with the Mapped_domain.
+
+> Returns the vector of hpx::locality_id's which is associated with the Mapped_domain
+
 
 
 I have learned a lot many new things during my GSoC 2017 Project. It is truly a unique experience a computer science passionate students can get in their lifetime. I highly encourage and motivate any computer science aspirant(students) to apply for Google Summer of Code program. 
