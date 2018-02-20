@@ -59,6 +59,7 @@ int main()
 {
 hpx::id_type target = hpx::find_here();
 std::vector<int>  values{1,2,2,3,4,5,6};
+hpx::apply(&calculate_mean,values);
 hpx::future<int> future_object = hpx::async(&calculate_mean, target, values)
                                   .then([](hpx::future<int> value)
                                        {
@@ -66,8 +67,11 @@ hpx::future<int> future_object = hpx::async(&calculate_mean, target, values)
                                        }).then([](hpx::future<int> value_1)
                                        { 
                                         return value_1 * 2;
-                                       });
-                                                                                                                                     hpx::apply(&calculate_mean,values);
+                                       }); 
+                                                                                                                                   
+                                                                                                                                   
+                                                                                                                                   
+                                                                                                                                  
 auto result   =   future_object.get();
 }
   ```
@@ -114,7 +118,7 @@ Domain Maps answers
 1) How are arrays laid out in memory ?
 2) How are arrays are stored by the locales ?
 
-Domains represent the index-set of an array. It is a way of expressing **Data Parallelism** directly in the code.
+Domains represent the index-set of an array. Domains can be **multi-dimensional**. It is a way of expressing **Data Parallelism** directly in the code.
 
 Domain Types
 1) Dense 
@@ -125,6 +129,18 @@ Domain Types
 
 Domain Maps tells **how to arrange these indexes in the memory (row-major || column-major)** if the array is stored locally (single-node or multi-processor) and **how to distribute the domain indices to different localities** if the array is stored in distributed manner (multi compute nodes).
 
+```c++
+domain<int,2> dom1{ {0,4} , {1,5} }; 
+
+// dom1 - dense domain.
+// int represent type of the index 
+// 2   represent dimension (2D) 
+
+domain<int,2> dom2{ {1,5,2} , {2,10,3} };
+// dom2 - strided domain.
+// third argument in std::initializer_list is a stride value
+
+```
 **Distribution Policies**
 
 Local(single node)
@@ -135,6 +151,7 @@ Distributed (cluster of compute nodes)
 
 
 **Domain_Map_Factory Class**
+
 
 **Properties**
 
@@ -158,8 +175,19 @@ Distributed (cluster of compute nodes)
  - query_domain()
  > returns a reference to the domain.
  
+ ```c++ 
+ 
+ Domain_Map_Factory dmap_fact(dom1, block_dist(2)); 
+ // block_dist(arg) - where arg is a block_size on each node. If not specified then domain evenly distributed over nodes
+ 
+ Mapped_Domain  dmap_domain = dmap_fact.Create_Mapped_Domain();
+ std::vector<
+ hpx::locality_id> locs = dmap_fact.query_localities(); 
+ 
+ ```
+ 
 **Mapped_Domain** 
-This type acts as a factory class to create arrays. 
+This type acts as a factory class to create arrays. It stores a reference to Domain_Map_Factory instance or std::unique_ptr<Domain_Map_Factory> object.
 
 **Properties**
 
@@ -169,19 +197,19 @@ This type acts as a factory class to create arrays.
 
 - This class creates an array, array is stored in the mapped_localities in the specified layout. In distributed case, the single global array instance contains multiple local array instances.
 
-**Behaviours**
+**Operations**
 
-- operator[] () (Random access operator)
+- operator[ ] () (Random access operator)
 
-> Based on the index requested, this function finds the locality_id and the index in the local array in which the element is located and returns a reference to it if **array[] is LHS of =** and copy if **array[] is RHS of =**.
+> Based on the index requested, this function finds the locality_id and the index in the local array in which the element is located and returns a reference to it if **array[ ] is LHS of =** and copy if **array[ ] is RHS of =**.
 
 - get_iterator() 
 
 > returns an instance of iterator over the array. Iterator traverses over the distributed global array by finding the indexed element locality and it's index in local array.
 
-- Create_Array_Factory 
+- Create_Array_Factory < T > () 
 
-> This function creates an array, with mapped_domain in the selected localities.
+> This template function creates an array which hold elements of type T, with mapped_domain in the selected localities.
 
 - Get_Domain
 
@@ -189,8 +217,41 @@ This type acts as a factory class to create arrays.
 
 - Get_Localities
 
-> Returns the vector of hpx::locality_id's which is associated with the Mapped_domain
+> Returns the vector of hpx::locality_id's which is associated with the Mapped_domain.
 
+```c++
+auto global_array_inst = dmap_domain.Create_Array_Factory<int>( );
+auto domain_inst       = dmap_domain.Get_Domain();
+auto locs_list         = dmap_domain.Get_Localities();
+```
+**Global_Array class**
+The instance of class represents the global distributed or (local) array of elements. It stores a reference to the instance of Mapped_Domain which created it. Distributed array is a **collection of local arrays**.
 
+**Operations**
+
+- insert_elements( arg )
+  This function inserts values in arg into the global_array, **arg** is a **STL sequence container**.
+  
+- operator[ ] () Random array index operator
+  This function calls the operator[ ] () on the instance of Mapped_Domain through the reference to get the indexed element.
+  
+- begin() 
+  Returns an iterator pointing to the first element of global_array.
+  
+- end() 
+  Returns an iterator pointing to the last  element of global_array.
+  
+- front()
+  Returns a first element of global array. 
+
+```c++
+  std::vector<int> vec{1,2,4,5,6,6,7,8,8,9,23,445,67,6778,898};
+  
+  global_array_inst.insert_elements(vec);
+  
+  for(auto itr = global_array_inst.begin(); itr != global_array_inst.end(); itr++)
+     std::cout << itr;
+     
+```
 
 I have learned a lot many new things during my GSoC 2017 Project. It is truly a unique experience a computer science passionate students can get in their lifetime. I highly encourage and motivate any computer science aspirant(students) to apply for Google Summer of Code program. 
