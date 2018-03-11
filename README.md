@@ -129,6 +129,11 @@ Domain Types
 5) Associative (for maps)
 
 Domain Maps tells **how to arrange these indexes in the memory (row-major || column-major)** if the array is stored locally (single-node or multi-processor) and **how to distribute the domain indices to different localities** if the array is stored in distributed manner (multi compute nodes).
+
+Row major storage:![alt text](https://github.com/pree-jackie/clangs/tree/master/imago/row)
+
+Column major storage:![alt text](https://github.com/pree-jackie/clangs/tree/master/imago/column)
+
 **Domain**
 
 **Properties**
@@ -145,13 +150,14 @@ Domain Maps tells **how to arrange these indexes in the memory (row-major || col
 - Slice 
 > This function slices the domain region to capture a small subspace of domain. Slice of the domain are useful to increase the **parallel computation efficiency**, where the **size of slice** is equal (greater than) **number of processors** in the system. The computation on each element (group of elements in the slice) is done parallely on each processors.
 
+example : ![alt text](https://github.com/pree-jackie/clangs/tree/master/imago/slice)
+
 -Split
 > Function helps in spliting the domain into non-overlap subdomains, which is used to create new domains.
 
 **Dense Domain**
 
-- It is a full N1 * N2 * N3 * ... * NN iteration space. All array elements in the indexes are stored continuosly in the memory.
-![alt text](https://github.com/pree-jackie/clangs/tree/master/imago/dense)
+- It is a full N1 * N2 * N3 * ... * NN iteration space. All array elements in the indexes are stored continuosly in the memory.![alt text](https://github.com/pree-jackie/clangs/tree/master/imago/dense)
 
 ```c++
 domain<int,2> dense_domain{ {0,4} , {1,5} }; 
@@ -162,10 +168,7 @@ domain<int,2> dense_domain{ {0,4} , {1,5} };
 ```
 **Sparse Domain**
  
-- It represents the specific indexes in the N-dimensional space. It is stored in **compressed sparse format**.
-
-![alt text](https://github.com/pree-jackie/clangs/tree/master/imago/sparse)
-
+- It represents the specific indexes in the N-dimensional space. It is stored in **compressed sparse format**.![alt text](https://github.com/pree-jackie/clangs/tree/master/imago/sparse)
 
 
 ```c++
@@ -177,11 +180,7 @@ domain<int,2> sparse_domain{ {1,2}, {3,5} ,{34,36} };
 ```
 **Strided domain**
 
-- It represents the N-dimensional domain space, where each index in the domain is spaced stride value apart.
-
-![alt text](https://github.com/pree-jackie/clangs/tree/master/imago/stride)
-
-
+- It represents the N-dimensional domain space, where each index in the domain is spaced stride value apart.![alt text](https://github.com/pree-jackie/clangs/tree/master/imago/stride)
 
 ```c++
 domain<int,2> strided_domain{ {1,5,2} , {2,10,3} };
@@ -190,24 +189,36 @@ domain<int,2> strided_domain{ {1,5,2} , {2,10,3} };
 ```
 **Associative Domain**
 
-- Domain whose indexes other than the integer values. They can be used to implement maps(Key, value) pairs.
-
-![alt text](https://github.com/pree-jackie/clangs/tree/master/imago/associative)
-
+- Domain whose indexes other than the integer values. They can be used to implement maps(Key, value) pairs.![alt text](https://github.com/pree-jackie/clangs/tree/master/imago/associative)
 
 ```c++
 domain<string,3> associative_domain { {"cern"}, {"cms"}, {"atlas"} };
 // associative domain
 // here, type of the index is string
 ```
+
+**Graph Domain** 
+
+- Experimental feature to support unstructured domains.![picture](https://github.com/pree-jackie/clangs/tree/master/imago/graphs)
+
 **Distribution Policies**
 
 Local(single node)
  > row_major_layout, column_major_layout, compressed_row_format (for sparse domains, experimental).
  
+ Layout in Local(single node) - Row wise layouting 
+ 
+ ![alt text](https://github.com/pree-jackie/clangs/tree/master/imago/horizontal_cut)
+ 
+ 
 Distributed (cluster of compute nodes)
  > block_dist_policy, cyclic_dist_policy, block_cyclic_dist_policy. 
+ 
+Distribution in multiple nodes 
 
+Block  Distribution Policy - ![alt text](https://github.com/pree-jackie/clangs/tree/master/imago/block_distri)  
+
+Cyclic Distribution Policy - ![alt text](https://github.com/pree-jackie/clangs/tree/master/imago/cyclic_distri)
 
 **Domain_Map_Factory Class**
 
@@ -236,6 +247,8 @@ Distributed (cluster of compute nodes)
  
  ```c++ 
  
+ domain<int,2> dom1{ {1,5}, {6,10} };
+ 
  Domain_Map_Factory dmap_fact(dom1, block_dist(2)); 
  // block_dist(arg) - where arg is a block_size on each node. If not specified then domain evenly distributed over nodes
  
@@ -243,6 +256,17 @@ Distributed (cluster of compute nodes)
  std::vector<
  hpx::locality_id> locs = dmap_fact.query_localities(); 
  
+ ```
+ 
+ ```c++
+ Domain_Map_Factory   local_dmap_fact(dom1, row_major);
+ // row_major is the layout policy of the array in the current locale
+ 
+ Mapped_Domain  local_dmap_domain = local_dmap_fact.Create_Mapped_Domain();
+ 
+ hpx::locality_id locs = local_dmap_fact.query_localities(); 
+ 
+ // returns only one locale id
  ```
  
 **Mapped_Domain** 
