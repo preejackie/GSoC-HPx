@@ -128,18 +128,49 @@ Domain Types
 5) Associative (for maps)
 
 Domain Maps tells **how to arrange these indexes in the memory (row-major || column-major)** if the array is stored locally (single-node or multi-processor) and **how to distribute the domain indices to different localities** if the array is stored in distributed manner (multi compute nodes).
+**Domain**
+
+**Properties**
+
+- Domains represent the index-set of an array. The start extent and end extent of each dimensions are stored. This preserves the application freedom to express the extents independent of language differences such as array starting index issue.  
+
+- The domain supports iteration over. 
+
+**Operations**
+
+- Iterator
+> This function returns the iterator object for the domain, which can be used like **standard c++ iterators** to iterate over the iteration or domain space.
+
+- Slice 
+> This function slices the domain region to capture a small subspace of domain. Slice of the domain are useful to increase the **parallel computation efficiency**, where the **size of slice** is equal (greater than) **number of processors** in the system. The computation on each element (group of elements in the slice) is done parallely on each processors.
+
+-Split
+> Function helps in spliting the domain into non-overlap subdomains, which is used to create new domains.
 
 ```c++
-domain<int,2> dom1{ {0,4} , {1,5} }; 
+domain<int,2> dense_domain{ {0,4} , {1,5} }; 
 
-// dom1 - dense domain.
+// dense domain.
 // int represent type of the index 
 // 2   represent dimension (2D) 
+```
+```c++
+domain<int,2> sparse_domain{ {1,2}, {3,5} ,{34,36} };
+// sparse_domain
+// It is a 2D dimensional domain, but the elements are stored only on the specified 2D co-ordinates 
+// like (3,5) , (34,36)
+// Stored in **compressed sparse format**
+```
 
-domain<int,2> dom2{ {1,5,2} , {2,10,3} };
-// dom2 - strided domain.
+```c++
+domain<int,2> strided_domain{ {1,5,2} , {2,10,3} };
+// strided domain.
 // third argument in std::initializer_list is a stride value
-
+```
+```c++
+domain<string,3> associative_domain { {"cern"}, {"cms"}, {"atlas"} };
+// associative domain
+// here, type of the index is string
 ```
 **Distribution Policies**
 
