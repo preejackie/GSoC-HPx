@@ -111,6 +111,7 @@ In one line - "Basically we are going to construct a **distributed array** in HP
 
 **Domains** in **Chapel** programming language are inspired by **ZPL(Language) Regions**. 
 
+
 From Chapel:
 > **Domain Maps are "recipes" that instruct the compiler how to map the global view of a computation to the target locales' memory and processors**
 
@@ -151,6 +152,9 @@ Domain Maps tells **how to arrange these indexes in the memory (row-major || col
 
 - It is a full N1 * N2 * N3 * ... * NN iteration space. All array elements in the indexes are stored continuosly in the memory.
 
+![alt text](https://github.com/pree-jackie/clangs/tree/master/imago/dense)
+
+
 ```c++
 domain<int,2> dense_domain{ {0,4} , {1,5} }; 
 
@@ -161,6 +165,10 @@ domain<int,2> dense_domain{ {0,4} , {1,5} };
 **Sparse Domain**
  
 - It represents the specific indexes in the N-dimensional space. It is stored in **compressed sparse format**.
+
+![alt text](https://github.com/pree-jackie/clangs/tree/master/imago/sparse)
+
+
 
 ```c++
 domain<int,2> sparse_domain{ {1,2}, {3,5} ,{34,36} };
@@ -173,6 +181,10 @@ domain<int,2> sparse_domain{ {1,2}, {3,5} ,{34,36} };
 
 - It represents the N-dimensional domain space, where each index in the domain is spaced stride value apart.
 
+![alt text](https://github.com/pree-jackie/clangs/tree/master/imago/stride)
+
+
+
 ```c++
 domain<int,2> strided_domain{ {1,5,2} , {2,10,3} };
 // strided domain.
@@ -181,6 +193,9 @@ domain<int,2> strided_domain{ {1,5,2} , {2,10,3} };
 **Associative Domain**
 
 - Domain whose indexes other than the integer values. They can be used to implement maps(Key, value) pairs.
+
+![alt text](https://github.com/pree-jackie/clangs/tree/master/imago/associative)
+
 
 ```c++
 domain<string,3> associative_domain { {"cern"}, {"cms"}, {"atlas"} };
