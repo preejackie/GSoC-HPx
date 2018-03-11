@@ -151,9 +151,7 @@ Domain Maps tells **how to arrange these indexes in the memory (row-major || col
 **Dense Domain**
 
 - It is a full N1 * N2 * N3 * ... * NN iteration space. All array elements in the indexes are stored continuosly in the memory.
-
 ![alt text](https://github.com/pree-jackie/clangs/tree/master/imago/dense)
-
 
 ```c++
 domain<int,2> dense_domain{ {0,4} , {1,5} }; 
