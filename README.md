@@ -147,6 +147,10 @@ Domain Maps tells **how to arrange these indexes in the memory (row-major || col
 -Split
 > Function helps in spliting the domain into non-overlap subdomains, which is used to create new domains.
 
+**Dense Domain**
+
+- It is a full N1 * N2 * N3 * ... * NN iteration space. All array elements in the indexes are stored continuosly in the memory.
+
 ```c++
 domain<int,2> dense_domain{ {0,4} , {1,5} }; 
 
@@ -154,6 +158,10 @@ domain<int,2> dense_domain{ {0,4} , {1,5} };
 // int represent type of the index 
 // 2   represent dimension (2D) 
 ```
+**Sparse Domain**
+ 
+- It represents the specific indexes in the N-dimensional space. It is stored in **compressed sparse format**.
+
 ```c++
 domain<int,2> sparse_domain{ {1,2}, {3,5} ,{34,36} };
 // sparse_domain
@@ -161,12 +169,19 @@ domain<int,2> sparse_domain{ {1,2}, {3,5} ,{34,36} };
 // like (3,5) , (34,36)
 // Stored in **compressed sparse format**
 ```
+**Strided domain**
+
+- It represents the N-dimensional domain space, where each index in the domain is spaced stride value apart.
 
 ```c++
 domain<int,2> strided_domain{ {1,5,2} , {2,10,3} };
 // strided domain.
 // third argument in std::initializer_list is a stride value
 ```
+**Associative Domain**
+
+- Domain whose indexes other than the integer values. They can be used to implement maps(Key, value) pairs.
+
 ```c++
 domain<string,3> associative_domain { {"cern"}, {"cms"}, {"atlas"} };
 // associative domain
