@@ -130,9 +130,11 @@ Domain Types
 
 Domain Maps tells **how to arrange these indexes in the memory (row-major || column-major)** if the array is stored locally (single-node or multi-processor) and **how to distribute the domain indices to different localities** if the array is stored in distributed manner (multi compute nodes).
 
-Row major storage:![alt text](https://github.com/pree-jackie/clangs/blob/master/associative.png)
+Row major storage:![alt text](https://github.com/pree-jackie/clangs/blob/master/imago/Untitled%20Folder/row.png)
 
-Column major storage:![alt text](https://github.com/pree-jackie/clangs/tree/master/imago/column)
+
+
+Column major storage:![alt text](https://github.com/pree-jackie/clangs/blob/master/imago/Untitled%20Folder/column.png)
 
 **Domain**
 
@@ -150,14 +152,19 @@ Column major storage:![alt text](https://github.com/pree-jackie/clangs/tree/mast
 - Slice 
 > This function slices the domain region to capture a small subspace of domain. Slice of the domain are useful to increase the **parallel computation efficiency**, where the **size of slice** is equal (greater than) **number of processors** in the system. The computation on each element (group of elements in the slice) is done parallely on each processors.
 
-example : ![alt text](https://github.com/pree-jackie/clangs/tree/master/imago/slice)
+example : 
+
+![alt text](https://github.com/pree-jackie/clangs/blob/master/imago/Untitled%20Folder/slice.png)
+
 
 -Split
 > Function helps in spliting the domain into non-overlap subdomains, which is used to create new domains.
 
 **Dense Domain**
 
-- It is a full N1 * N2 * N3 * ... * NN iteration space. All array elements in the indexes are stored continuosly in the memory.![alt text](https://github.com/pree-jackie/clangs/tree/master/imago/dense)
+- It is a full N1 * N2 * N3 * ... * NN iteration space. All array elements in the indexes are stored continuosly in the memory.
+ 
+ ![alt text](https://github.com/pree-jackie/clangs/blob/master/imago/dense.png)
 
 ```c++
 domain<int,2> dense_domain{ {0,4} , {1,5} }; 
@@ -168,7 +175,8 @@ domain<int,2> dense_domain{ {0,4} , {1,5} };
 ```
 **Sparse Domain**
  
-- It represents the specific indexes in the N-dimensional space. It is stored in **compressed sparse format**.![alt text](https://github.com/pree-jackie/clangs/tree/master/imago/sparse)
+- It represents the specific indexes in the N-dimensional space. It is stored in **compressed sparse format**.
+![alt text](https://github.com/pree-jackie/clangs/blob/master/imago/Untitled%20Folder/sparse.png)
 
 
 ```c++
@@ -180,7 +188,8 @@ domain<int,2> sparse_domain{ {1,2}, {3,5} ,{34,36} };
 ```
 **Strided domain**
 
-- It represents the N-dimensional domain space, where each index in the domain is spaced stride value apart.![alt text](https://github.com/pree-jackie/clangs/tree/master/imago/stride)
+- It represents the N-dimensional domain space, where each index in the domain is spaced stride value apart.
+![alt text](https://github.com/pree-jackie/clangs/blob/master/imago/Untitled%20Folder/stride.png)
 
 ```c++
 domain<int,2> strided_domain{ {1,5,2} , {2,10,3} };
@@ -189,7 +198,8 @@ domain<int,2> strided_domain{ {1,5,2} , {2,10,3} };
 ```
 **Associative Domain**
 
-- Domain whose indexes other than the integer values. They can be used to implement maps(Key, value) pairs.![alt text](https://github.com/pree-jackie/clangs/tree/master/imago/associative)
+- Domain whose indexes other than the integer values. They can be used to implement maps(Key, value) pairs.
+![alt text](https://github.com/pree-jackie/clangs/blob/master/imago/Untitled%20Folder/associative.png)
 
 ```c++
 domain<string,3> associative_domain { {"cern"}, {"cms"}, {"atlas"} };
@@ -199,7 +209,9 @@ domain<string,3> associative_domain { {"cern"}, {"cms"}, {"atlas"} };
 
 **Graph Domain** 
 
-- Experimental feature to support unstructured domains.![picture](https://github.com/pree-jackie/clangs/tree/master/imago/graphs)
+- Experimental feature to support unstructured domains.
+
+![picture](https://github.com/pree-jackie/clangs/blob/master/imago/Untitled%20Folder/graphs.png)
 
 **Distribution Policies**
 
@@ -208,7 +220,7 @@ Local(single node)
  
  Layout in Local(single node) - Row wise layouting 
  
- ![alt text](https://github.com/pree-jackie/clangs/tree/master/imago/horizontal_cut)
+ ![alt text](https://github.com/pree-jackie/clangs/blob/master/imago/Untitled%20Folder/horizontal_cut.png)
  
  
 Distributed (cluster of compute nodes)
@@ -216,9 +228,13 @@ Distributed (cluster of compute nodes)
  
 Distribution in multiple nodes 
 
-Block  Distribution Policy - ![alt text](https://github.com/pree-jackie/clangs/tree/master/imago/block_distri)  
+Block  Distribution Policy - 
 
-Cyclic Distribution Policy - ![alt text](https://github.com/pree-jackie/clangs/tree/master/imago/cyclic_distri)
+![alt text](https://github.com/pree-jackie/clangs/blob/master/imago/Untitled%20Folder/block_distri.png)  
+
+Cyclic Distribution Policy - 
+
+![alt text](https://github.com/pree-jackie/clangs/blob/master/imago/Untitled%20Folder/cyclic_distri.png)
 
 **Domain_Map_Factory Class**
 
