@@ -130,7 +130,7 @@ Domain Types
 
 Domain Maps tells **how to arrange these indexes in the memory (row-major || column-major)** if the array is stored locally (single-node or multi-processor) and **how to distribute the domain indices to different localities** if the array is stored in distributed manner (multi compute nodes).
 
-Row major storage:![alt text](https://github.com/pree-jackie/clangs/tree/master/imago/row)
+Row major storage:![alt text](https://github.com/pree-jackie/clangs/blob/master/associative.png)
 
 Column major storage:![alt text](https://github.com/pree-jackie/clangs/tree/master/imago/column)
 
