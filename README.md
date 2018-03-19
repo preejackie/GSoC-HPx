@@ -130,11 +130,18 @@ Domain Types
 
 Domain Maps tells **how to arrange these indexes in the memory (row-major || column-major)** if the array is stored locally (single-node or multi-processor) and **how to distribute the domain indices to different localities** if the array is stored in distributed manner (multi compute nodes).
 
-Row major storage:![alt text](https://github.com/pree-jackie/clangs/blob/master/imago/Untitled%20Folder/row.png)
+Row major storage:
+
+
+![alt text](https://github.com/pree-jackie/clangs/blob/master/imago/Untitled%20Folder/row.png)
 
 
 
-Column major storage:![alt text](https://github.com/pree-jackie/clangs/blob/master/imago/Untitled%20Folder/column.png)
+Column major storage:
+
+
+![alt text](https://github.com/pree-jackie/clangs/blob/master/imago/Untitled%20Folder/column.png)
+
 
 **Domain**
 
@@ -149,6 +156,9 @@ Column major storage:![alt text](https://github.com/pree-jackie/clangs/blob/mast
 - Iterator
 > This function returns the iterator object for the domain, which can be used like **standard c++ iterators** to iterate over the iteration or domain space.
 
+- Split
+> Function helps in spliting the domain into non-overlap subdomains, which is used to create new domains.
+
 - Slice 
 > This function slices the domain region to capture a small subspace of domain. Slice of the domain are useful to increase the **parallel computation efficiency**, where the **size of slice** is equal (greater than) **number of processors** in the system. The computation on each element (group of elements in the slice) is done parallely on each processors.
 
@@ -156,9 +166,6 @@ example :
 
 ![alt text](https://github.com/pree-jackie/clangs/blob/master/imago/Untitled%20Folder/slice.png)
 
-
--Split
-> Function helps in spliting the domain into non-overlap subdomains, which is used to create new domains.
 
 **Dense Domain**
 
