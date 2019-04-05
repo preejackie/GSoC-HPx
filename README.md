@@ -1,4 +1,3 @@
-The project proposal is [here](https://github.com/pree-jackie/GSoC-HPx/blob/master/Final_gsoc%20_proposal.pdf)
 
 HPX (High Performance Parallelx) - Modern C++ General Purpose Runtime System for applications of any scale with standard Concurrency and Parallelism concepts. Applications written in HPX out-perform OpenMP/MPI.
 
